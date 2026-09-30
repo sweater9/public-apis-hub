@@ -8,16 +8,33 @@ DB_PATH = ROOT / "data" / "kb.sqlite"
 CORPUS = ROOT / "kb" / "corpus"
 _STOP = set("a an the is are was were be been being to of in on for and or as at by with from that this it its into about what how why when where who which can does do did me my your you i we they their our".split())
 
-def ensure_index() -> bool:
+def ensure_index(force: bool = False) -> bool:
+    """Build FTS index if missing, empty, or corpus file count drifted."""
+    corpus_n = len(list(CORPUS.glob("*.md"))) if CORPUS.is_dir() else 0
+
     def usable() -> bool:
         if not (DB_PATH.is_file() and DB_PATH.stat().st_size > 0):
             return False
         try:
-            c = _connect(); n = c.execute("SELECT COUNT(*) AS c FROM docs").fetchone()["c"]; c.close(); return n > 0
+            c = _connect()
+            n = c.execute("SELECT COUNT(*) AS c FROM docs").fetchone()["c"]
+            c.close()
+            if n <= 0:
+                return False
+            # Rebuild when corpus grew/shrank vs indexed docs
+            if corpus_n and n != corpus_n:
+                return False
+            return True
         except Exception:
             return False
-    if usable():
+
+    if not force and usable():
         return True
+    if DB_PATH.exists():
+        try:
+            DB_PATH.unlink()
+        except OSError:
+            pass
     import importlib.util
     spec = importlib.util.spec_from_file_location("build_kb_index", ROOT / "scripts" / "build_kb_index.py")
     if not spec or not spec.loader:
@@ -41,7 +58,8 @@ def status() -> dict:
             chunk_count = c.execute("SELECT COUNT(*) AS c FROM chunks").fetchone()["c"]; c.close()
         except Exception as exc:
             return {"ok": False, "index_ok": False, "doc_count": 0, "chunk_count": 0, "db_path": str(DB_PATH.relative_to(ROOT)), "error": str(exc)}
-    return {"ok": ok and doc_count > 0, "index_ok": ok and doc_count > 0, "doc_count": doc_count, "chunk_count": chunk_count, "db_path": str(DB_PATH.relative_to(ROOT)) if ok else None, "mode": "offline-corpus"}
+    corpus_n = len(list(CORPUS.glob("*.md"))) if CORPUS.is_dir() else 0
+    return {"ok": ok and doc_count > 0, "index_ok": ok and doc_count > 0, "doc_count": doc_count, "chunk_count": chunk_count, "corpus_files": corpus_n, "db_path": str(DB_PATH.relative_to(ROOT)) if ok else None, "mode": "offline-corpus"}
 
 def _fts_query(q: str) -> str:
     tokens = [t for t in re.findall(r"[A-Za-z0-9_+\-]+", q.lower()) if t not in _STOP and len(t) > 1]
