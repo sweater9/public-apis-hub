@@ -47,20 +47,34 @@ def _fts_query(q: str) -> str:
     tokens = [t for t in re.findall(r"[A-Za-z0-9_+\-]+", q.lower()) if t not in _STOP and len(t) > 1]
     if not tokens:
         tokens = re.findall(r"[A-Za-z0-9_+\-]+", q.lower()) or ["crypto"]
-    return " AND ".join(f'\"{t.replace(chr(34),\"\" )}\"*' if len(t) >= 3 else f'\"{t}\"' for t in tokens[:8])
+    parts = []
+    for t in tokens[:8]:
+        safe = t.replace(chr(34), "")
+        if len(safe) >= 3:
+            parts.append(chr(34) + safe + chr(34) + "*")
+        else:
+            parts.append(chr(34) + safe + chr(34))
+    return " AND ".join(parts)
 
 def search(q: str, limit: int = 20) -> list[dict]:
     limit = max(1, min(int(limit or 20), 50)); q = (q or "").strip()
     if not q: return []
     conn = _connect()
     try:
-        rows = conn.execute("SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' … ',24) AS snip,bm25(docs_fts) AS score FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?", (_fts_query(q), limit)).fetchall()
+        rows = conn.execute(
+            "SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' ... ',24) AS snip,bm25(docs_fts) AS score FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?",
+            (_fts_query(q), limit),
+        ).fetchall()
     except sqlite3.OperationalError:
         toks = re.findall(r"[A-Za-z0-9_+\-]+", q.lower())
-        fts2 = " OR ".join(f'\"{t}\"' for t in toks[:8]) or '\"crypto\"'
-        rows = conn.execute("SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' … ',24) AS snip,bm25(docs_fts) AS score FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?", (fts2, limit)).fetchall()
+        fts2_parts = [chr(34) + t.replace(chr(34), "") + chr(34) for t in toks[:8]]
+        fts2 = " OR ".join(fts2_parts) or (chr(34) + "crypto" + chr(34))
+        rows = conn.execute(
+            "SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' ... ',24) AS snip,bm25(docs_fts) AS score FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?",
+            (fts2, limit),
+        ).fetchall()
     conn.close()
-    return [{"title": r["title"], "slug": r["slug"], "path": r["path"], "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()], "category": r["category"], "snippet": (r["snip"] or "").replace("\n"," ").strip(), "score": round(-float(r["score"]), 4)} for r in rows]
+    return [{"title": r["title"], "slug": r["slug"], "path": r["path"], "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()], "category": r["category"], "snippet": (r["snip"] or "").replace("\n", " ").strip(), "score": round(-float(r["score"]), 4)} for r in rows]
 
 def get_doc(slug: str) -> dict | None:
     slug = (slug or "").strip()
@@ -90,5 +104,5 @@ def _clean_chunk(text: str) -> str:
         if not x: continue
         if x.startswith("- "): x=x[2:].strip()
         cleaned.append(x)
-    s=" ".join(cleaned); s=re.sub(r"\s+"," ",s).strip(); s=re.sub(r"\*\*([^*]+)\*\*",r"\1",s); s=re.sub(r"`([^`]+)`",r"\1",s)
+    s=" ".join(cleaned); s=re.sub(r"\s+", " ", s).strip(); s=re.sub(r"\*\*([^*]+)\*\*", r"\1", s); s=re.sub(r"`([^`]+)`", r"\1", s)
     return s
