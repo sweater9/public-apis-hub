@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Tools — Public APIs Hub</title>
+  <style>
+    :root {
+      --bg: #0a0a0b; --bg2: #111113; --bg3: #18181b; --border: #27272a;
+      --text: #f4f4f5; --muted: #a1a1aa; --accent: #a78bfa; --accent2: #67e8f9;
+      --ok: #34d399; --bad: #f87171; --radius: 12px;
+      --font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: var(--font); color: var(--text); min-height: 100vh;
+      background: radial-gradient(1200px 600px at 10% -10%, #1a1030 0%, transparent 55%),
+                  radial-gradient(900px 500px at 90% 0%, #0b1e2a 0%, transparent 50%), var(--bg);
+    }
+    header { padding: 28px 24px 8px; max-width: 1200px; margin: 0 auto; }
+    header h1 {
+      margin: 0 0 6px; font-size: 1.65rem; font-weight: 650; letter-spacing: -0.02em;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    nav { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    nav a {
+      text-decoration: none; color: var(--muted); border: 1px solid var(--border);
+      background: var(--bg3); border-radius: 999px; padding: 6px 12px; font-size: 0.85rem;
+    }
+    nav a:hover, nav a.active { color: var(--accent2); border-color: var(--accent); }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px 24px 48px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+    .card {
+      background: color-mix(in srgb, var(--bg2) 88%, transparent);
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 16px;
+      display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(8px);
+    }
+    .card h2 { margin: 0; font-size: 1.05rem; }
+    .card .sub { color: var(--muted); font-size: 0.82rem; line-height: 1.4; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    input, select, button {
+      background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 8px 10px; font: inherit; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    button { cursor: pointer; }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .status { font-size: 0.75rem; color: var(--muted); font-family: var(--mono); }
+    .status.ok { color: var(--ok); } .status.err { color: var(--bad); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; font-size: 0.75rem; }
+    .pos { color: var(--ok); } .neg { color: var(--bad); }
+    .big { font-size: 1.4rem; font-weight: 650; letter-spacing: -0.02em; }
+    .mono { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); word-break: break-all; }
+    pre {
+      margin: 0; max-height: 220px; overflow: auto; background: #09090b;
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+      font-family: var(--mono); font-size: 0.72rem; color: var(--muted); white-space: pre-wrap;
+    }
+    footer { max-width: 1200px; margin: 0 auto; padding: 0 24px 32px; color: var(--muted); font-size: 0.8rem; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Live Crypto Tools</h1>
+    <p>No-auth endpoints called through this hub’s CORS proxy — data hits the APIs, not docs pages.</p>
+    <nav>
+      <a href="/">Catalog</a>
+      <a class="active" href="/tools">Live tools</a>
+      <a href="/api/health" target="_blank" rel="noopener">Health</a>
+    </nav>
+  </header>
+  <div class="wrap">
+    <div class="grid">
+      <section class="card" id="coingecko">
+        <h2>CoinGecko prices</h2>
+        <div class="sub">Simple price + 24h change (USD)</div>
+        <div class="row">
+          <input id="cg-ids" value="bitcoin,ethereum,solana" style="flex:1;min-width:160px" />
+          <button type="button" data-run="coingecko">Refresh</button>
+        </div>
+        <div class="status" id="cg-status">idle</div>
+        <div id="cg-out"></div>
+      </section>
+
+      <section class="card" id="coinpaprika">
+        <h2>CoinPaprika top tickers</h2>
+        <div class="sub">Rank, price, 24h change</div>
+        <div class="row">
+          <select id="pp-limit"><option>10</option><option selected>25</option><option>50</option></select>
+          <button type="button" data-run="coinpaprika">Refresh</button>
+        </div>
+        <div class="status" id="pp-status">idle</div>
+        <div id="pp-out" style="overflow:auto;max-height:280px"></div>
+      </section>
+
+      <section class="card" id="defillama">
+        <h2>DefiLlama chain TVL</h2>
+        <div class="sub">Top chains by total value locked</div>
+        <div class="row"><button type="button" data-run="defillama">Refresh</button></div>
+        <div class="status" id="ll-status">idle</div>
+        <div id="ll-out" style="overflow:auto;max-height:280px"></div>
+      </section>
+
+      <section class="card" id="mempool">
+        <h2>Mempool BTC fees</h2>
+        <div class="sub">Recommended sat/vB from mempool.space</div>
+        <div class="row"><button type="button" data-run="mempool">Refresh</button></div>
+        <div class="status" id="mp-status">idle</div>
+        <div id="mp-out"></div>
+      </section>
+
+      <section class="card" id="gemini">
+        <h2>Gemini BTC/USD</h2>
+        <div class="sub">Public ticker (bid / ask / last)</div>
+        <div class="row">
+          <input id="gm-pair" value="btcusd" style="width:120px" />
+          <button type="button" data-run="gemini">Refresh</button>
+        </div>
+        <div class="status" id="gm-status">idle</div>
+        <div id="gm-out"></div>
+      </section>
+
+      <section class="card" id="coinlore">
+        <h2>Coinlore market</h2>
+        <div class="sub">Top coins by market cap</div>
+        <div class="row">
+          <select id="cl-limit"><option>10</option><option selected>20</option><option>50</option></select>
+          <button type="button" data-run="coinlore">Refresh</button>
+        </div>
+        <div class="status" id="cl-status">idle</div>
+        <div id="cl-out" style="overflow:auto;max-height:280px"></div>
+      </section>
+
+      <section class="card" id="corpstacking">
+        <h2>CorpStacking treasuries</h2>
+        <div class="sub">Corporate / ETF BTC·ETH·SOL disclosure feed</div>
+        <div class="row"><button type="button" data-run="corpstacking">Refresh</button></div>
+        <div class="status" id="cs-status">idle</div>
+        <div id="cs-out" style="overflow:auto;max-height:280px"></div>
+      </section>
+
+      <section class="card" id="proxy-lab">
+        <h2>Proxy lab</h2>
+        <div class="sub">Hit any allowlisted HTTPS URL through <code>/api/proxy</code></div>
+        <div class="row">
+          <input id="lab-url" style="flex:1;min-width:180px" value="https://api.coinpaprika.com/v1/global" />
+          <button type="button" data-run="lab">Fetch</button>
+        </div>
+        <div class="status" id="lab-status">idle</div>
+        <pre id="lab-out">{}</pre>
+      </section>
+    </div>
+  </div>
+  <footer>
+    Calls go through <span class="mono">/api/proxy</span>. Hosts must be catalog-allowlisted or in the live-tools extra list.
+    <a href="https://github.com/sweater9/public-apis-hub">Repo</a>
+  </footer>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const fmtUsd = (n) => {
+      const x = Number(n);
+      if (!Number.isFinite(x)) return "—";
+      return x >= 1 ? x.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 })
+                    : x.toLocaleString(undefined, { style: "currency", currency: "USD", maximumSignificantDigits: 4 });
+    };
+    const fmtPct = (n) => {
+      const x = Number(n);
+      if (!Number.isFinite(x)) return "—";
+      const s = (x >= 0 ? "+" : "") + x.toFixed(2) + "%";
+      return `<span class="${x >= 0 ? "pos" : "neg"}">${s}</span>`;
+    };
+    const fmtTvl = (n) => {
+      const x = Number(n);
+      if (!Number.isFinite(x)) return "—";
+      if (x >= 1e9) return "$" + (x / 1e9).toFixed(2) + "B";
+      if (x >= 1e6) return "$" + (x / 1e6).toFixed(2) + "M";
+      return fmtUsd(x);
+    };
+
+    async function proxyGet(url) {
+      const res = await fetch("/api/proxy?url=" + encodeURIComponent(url));
+      const text = await res.text();
+      let data = text;
+      try { data = JSON.parse(text); } catch {}
+      if (!res.ok) {
+        const err = (data && data.error) || text || res.statusText;
+        throw new Error(typeof err === "string" ? err : JSON.stringify(err));
+      }
+      return data;
+    }
+
+    function setStatus(id, msg, ok) {
+      const el = $(id);
+      el.textContent = msg;
+      el.className = "status " + (ok === true ? "ok" : ok === false ? "err" : "");
+    }
+
+    const runners = {
+      async coingecko() {
+        const ids = $("cg-ids").value.trim() || "bitcoin,ethereum";
+        setStatus("cg-status", "loading…");
+        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(ids)}&vs_currencies=usd&include_24hr_change=true`;
+        const data = await proxyGet(url);
+        const rows = Object.entries(data).map(([id, v]) =>
+          `<tr><td>${id}</td><td>${fmtUsd(v.usd)}</td><td>${fmtPct(v.usd_24h_change)}</td></tr>`
+        ).join("");
+        $("cg-out").innerHTML = `<table><thead><tr><th>Asset</th><th>USD</th><th>24h</th></tr></thead><tbody>${rows || "<tr><td colspan=3>No data</td></tr>"}</tbody></table>`;
+        setStatus("cg-status", "ok · " + new Date().toLocaleTimeString(), true);
+      },
+      async coinpaprika() {
+        const limit = $("pp-limit").value;
+        setStatus("pp-status", "loading…");
+        const data = await proxyGet(`https://api.coinpaprika.com/v1/tickers?limit=${limit}`);
+        const rows = (Array.isArray(data) ? data : []).map((t) =>
+          `<tr><td>${t.rank}</td><td>${t.symbol}</td><td>${t.name}</td><td>${fmtUsd(t.quotes?.USD?.price)}</td><td>${fmtPct(t.quotes?.USD?.percent_change_24h)}</td></tr>`
+        ).join("");
+        $("pp-out").innerHTML = `<table><thead><tr><th>#</th><th>Sym</th><th>Name</th><th>USD</th><th>24h</th></tr></thead><tbody>${rows}</tbody></table>`;
+        setStatus("pp-status", `ok · ${Array.isArray(data) ? data.length : 0} tickers`, true);
+      },
+      async defillama() {
+        setStatus("ll-status", "loading…");
+        const data = await proxyGet("https://api.llama.fi/v2/chains");
+        const top = (Array.isArray(data) ? data : []).slice().sort((a, b) => (b.tvl || 0) - (a.tvl || 0)).slice(0, 15);
+        const rows = top.map((c, i) =>
+          `<tr><td>${i + 1}</td><td>${c.name || c.tokenSymbol || "—"}</td><td>${fmtTvl(c.tvl)}</td></tr>`
+        ).join("");
+        $("ll-out").innerHTML = `<table><thead><tr><th>#</th><th>Chain</th><th>TVL</th></tr></thead><tbody>${rows}</tbody></table>`;
+        setStatus("ll-status", `ok · top ${top.length}`, true);
+      },
+      async mempool() {
+        setStatus("mp-status", "loading…");
+        const data = await proxyGet("https://mempool.space/api/v1/fees/recommended");
+        $("mp-out").innerHTML = `
+          <div class="row" style="gap:16px">
+            <div><div class="sub">Fastest</div><div class="big">${data.fastestFee} <span class="sub">sat/vB</span></div></div>
+            <div><div class="sub">½ hour</div><div class="big">${data.halfHourFee}</div></div>
+            <div><div class="sub">1 hour</div><div class="big">${data.hourFee}</div></div>
+            <div><div class="sub">Economy</div><div class="big">${data.economyFee}</div></div>
+          </div>`;
+        setStatus("mp-status", "ok · " + new Date().toLocaleTimeString(), true);
+      },
+      async gemini() {
+        const pair = ($("gm-pair").value.trim() || "btcusd").toLowerCase();
+        setStatus("gm-status", "loading…");
+        const data = await proxyGet(`https://api.gemini.com/v1/pubticker/${encodeURIComponent(pair)}`);
+        $("gm-out").innerHTML = `
+          <div class="big">${fmtUsd(data.last)}</div>
+          <div class="sub">bid ${fmtUsd(data.bid)} · ask ${fmtUsd(data.ask)}</div>
+          <div class="mono">pair ${pair}</div>`;
+        setStatus("gm-status", "ok · " + new Date().toLocaleTimeString(), true);
+      },
+      async coinlore() {
+        const limit = $("cl-limit").value;
+        setStatus("cl-status", "loading…");
+        const data = await proxyGet(`https://api.coinlore.net/api/tickers/?start=0&limit=${limit}`);
+        const list = data.data || [];
+        const rows = list.map((t) =>
+          `<tr><td>${t.rank}</td><td>${t.symbol}</td><td>${t.name}</td><td>${fmtUsd(t.price_usd)}</td><td>${fmtPct(t.percent_change_24h)}</td></tr>`
+        ).join("");
+        $("cl-out").innerHTML = `<table><thead><tr><th>#</th><th>Sym</th><th>Name</th><th>USD</th><th>24h</th></tr></thead><tbody>${rows}</tbody></table>`;
+        setStatus("cl-status", `ok · ${list.length} coins`, true);
+      },
+      async corpstacking() {
+        setStatus("cs-status", "loading…");
+        const data = await proxyGet("https://www.corpstacking.com/feed.json");
+        const items = (data.items || []).slice(0, 12);
+        const rows = items.map((it) =>
+          `<tr><td>${(it.date_published || "").slice(0, 10)}</td><td><a href="${it.url || "#"}" target="_blank" rel="noopener" style="color:var(--accent2)">${(it.title || "").replace(/</g, "<")}</a></td></tr>`
+        ).join("");
+        $("cs-out").innerHTML = `<table><thead><tr><th>Date</th><th>Item</th></tr></thead><tbody>${rows || "<tr><td colspan=2>No items</td></tr>"}</tbody></table>`;
+        setStatus("cs-status", `ok · ${items.length} items`, true);
+      },
+      async lab() {
+        const url = $("lab-url").value.trim();
+        setStatus("lab-status", "loading…");
+        const data = await proxyGet(url);
+        $("lab-out").textContent = typeof data === "string" ? data.slice(0, 4000) : JSON.stringify(data, null, 2).slice(0, 4000);
+        setStatus("lab-status", "ok · " + new Date().toLocaleTimeString(), true);
+      },
+    };
+
+    document.querySelectorAll("button[data-run]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const key = btn.getAttribute("data-run");
+        btn.disabled = true;
+        try { await runners[key](); }
+        catch (e) {
+          const map = { coingecko: "cg", coinpaprika: "pp", defillama: "ll", mempool: "mp", gemini: "gm", coinlore: "cl", corpstacking: "cs", lab: "lab" };
+          setStatus(map[key] + "-status", String(e.message || e), false);
+        } finally { btn.disabled = false; }
+      });
+    });
+
+    // Auto-load a few on open
+    ["coingecko", "mempool", "gemini"].forEach((k) => runners[k]().catch(() => {}));
+  </script>
+</body>
+</html>
