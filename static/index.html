@@ -96,7 +96,11 @@
 <body>
   <header>
     <h1>Public APIs Hub</h1>
-    <p>Searchable Cryptocurrency &amp; Blockchain catalog from <a href="https://github.com/public-apis/public-apis" style="color:var(--accent2)">public-apis</a>, plus a safe CORS proxy.</p>
+    <p>Searchable Cryptocurrency & Blockchain catalog from <a href="https://github.com/public-apis/public-apis" style="color:var(--accent2)">public-apis</a>, plus a safe CORS proxy.</p>
+    <nav style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <a href="/" style="text-decoration:none;color:var(--accent2);border:1px solid var(--accent);background:var(--bg3);border-radius:999px;padding:6px 12px;font-size:0.85rem">Catalog</a>
+      <a href="/tools" style="text-decoration:none;color:var(--muted);border:1px solid var(--border);background:var(--bg3);border-radius:999px;padding:6px 12px;font-size:0.85rem">Live tools</a>
+    </nav>
   </header>
   <div class="wrap">
     <div class="panel">
@@ -109,7 +113,7 @@
       </div>
       <div class="meta"><span class="pill"><span class="dot"></span> <span id="count">…</span> APIs</span><span class="pill" id="health">health…</span></div>
       <div id="grid" class="grid"></div>
-      <div class="proxy-box">Proxy: <code>GET /api/proxy?url=&lt;encoded_https_url&gt;</code> — allowlisted to catalog hosts only. Example: <code id="ex"></code></div>
+      <div class="proxy-box">Proxy: <code>GET /api/proxy?url=<encoded_https_url></code> — allowlisted to catalog hosts only. Example: <code id="ex"></code></div>
     </div>
   </div>
   <footer>Data sourced from public-apis README (Crypto + Blockchain). Deployed for Projject Api room bots.</footer>
@@ -124,7 +128,7 @@
       el.querySelector("button").addEventListener("click", async () => { const u = location.origin + proxyUrl; try { await navigator.clipboard.writeText(u); } catch {} alert("Copied:\n" + u); });
       return el;
     }
-    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&","<":"<",">":">",'"':""","'":"&#39;" }[c])); }
     async function load() {
       const params = new URLSearchParams();
       const q = $("q").value.trim(); const category = $("category").value; const auth = $("auth").value; const https = $("https").value; const cors = $("cors").value;
