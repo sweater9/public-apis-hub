@@ -22,8 +22,18 @@ RATE_LIMIT_MAX = 60
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 
-# --- catalog ---
+
 def load_catalog() -> list[dict]:
+    data_dir = APP_DIR / "data"
+    if data_dir.is_dir():
+        items: list[dict] = []
+        for path in sorted(data_dir.glob("*.json")):
+            with path.open(encoding="utf-8") as f:
+                chunk = json.load(f)
+            if isinstance(chunk, list):
+                items.extend(chunk)
+        if items:
+            return items
     with CATALOG_PATH.open(encoding="utf-8") as f:
         return json.load(f)
 
@@ -46,7 +56,6 @@ def catalog_hosts() -> set[str]:
 
 ALLOWED_HOSTS = catalog_hosts()
 
-# --- rate limit (in-memory, per IP) ---
 _rate_buckets: dict[str, deque] = defaultdict(deque)
 
 
@@ -61,7 +70,6 @@ def rate_limited(ip: str) -> bool:
     return False
 
 
-# --- SSRF helpers ---
 def is_private_ip(ip: str) -> bool:
     try:
         addr = ipaddress.ip_address(ip)
