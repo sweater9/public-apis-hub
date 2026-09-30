@@ -10,6 +10,7 @@ Built for the Projject Api room. Does **not** depend on multi-agent-ai-system or
 - `GET /api/catalog` — JSON list (defaults to full crypto+blockchain dataset)
 - `GET /api/proxy?url=<encoded>` — server-side CORS proxy with host allowlist + SSRF guards
 - `GET /api/health` — liveness + catalog stats
+- `GET /tools` — live no-auth crypto widgets (CoinGecko, CoinPaprika, DefiLlama, Mempool, Gemini, Coinlore, CorpStacking) via the proxy
 
 ## Quick start
 
