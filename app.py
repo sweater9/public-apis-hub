@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 import requests
 from flask import Flask, Response, jsonify, request, send_from_directory
 
-import kb as knowledge_base
+from kb import ask as kb_ask, ensure_index as kb_ensure_index, search as kb_search, status as kb_status
 
 APP_DIR = Path(__file__).resolve().parent
 CATALOG_PATH = APP_DIR / "catalog.json"
@@ -24,8 +24,11 @@ RATE_LIMIT_MAX = 60
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 
-# Offline KB index (build on boot if data/kb.sqlite missing)
-knowledge_base.ensure_index()
+# Build offline KB FTS index from kb/corpus on boot (no external APIs).
+try:
+    kb_ensure_index()
+except Exception as _kb_exc:  # noqa: BLE001
+    app.logger.warning("KB index build failed: %s", _kb_exc)
 
 
 def load_catalog() -> list[dict]:
@@ -276,6 +279,52 @@ def proxy():
     return resp
 
 
+
+
+@app.get("/api/kb/status")
+def kb_status_route():
+    try:
+        kb_ensure_index()
+        return jsonify(kb_status())
+    except Exception as exc:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(exc)}), 500
+
+
+@app.get("/api/kb/search")
+def kb_search_route():
+    q = (request.args.get("q") or "").strip()
+    try:
+        limit = min(int(request.args.get("limit") or 8), 20)
+    except ValueError:
+        limit = 8
+    kb_ensure_index()
+    return jsonify({"query": q, "results": kb_search(q, limit=limit)})
+
+
+@app.route("/api/kb/ask", methods=["GET", "POST"])
+def kb_ask_route():
+    if request.method == "POST":
+        body = request.get_json(silent=True) or {}
+        q = (body.get("q") or body.get("query") or request.args.get("q") or "").strip()
+        try:
+            limit_sources = min(int(body.get("limit_sources") or request.args.get("limit_sources") or 5), 10)
+        except ValueError:
+            limit_sources = 5
+    else:
+        q = (request.args.get("q") or request.args.get("query") or "").strip()
+        try:
+            limit_sources = min(int(request.args.get("limit_sources") or 5), 10)
+        except ValueError:
+            limit_sources = 5
+    kb_ensure_index()
+    return jsonify(kb_ask(q, limit_sources=limit_sources))
+
+
+@app.get("/kb")
+def kb_page():
+    return send_from_directory(APP_DIR / "static", "kb.html")
+
+
 @app.get("/")
 def index():
     return send_from_directory(APP_DIR / "static", "index.html")
@@ -284,55 +333,6 @@ def index():
 @app.get("/tools")
 def tools():
     return send_from_directory(APP_DIR / "static", "tools.html")
-
-
-@app.get("/api/kb/status")
-def kb_status():
-    return jsonify(knowledge_base.status())
-
-
-@app.get("/api/kb/search")
-def kb_search():
-    q = (request.args.get("q") or "").strip()
-    limit = request.args.get("limit", 20)
-    try:
-        limit_i = int(limit)
-    except (TypeError, ValueError):
-        limit_i = 20
-    hits = knowledge_base.search(q, limit=limit_i)
-    return jsonify({"query": q, "count": len(hits), "hits": hits})
-
-
-@app.get("/api/kb/ask")
-def kb_ask():
-    q = (request.args.get("q") or "").strip()
-    result = knowledge_base.ask(q)
-    return jsonify(result)
-
-
-@app.get("/api/kb/doc/<slug>")
-def kb_doc(slug: str):
-    fmt = (request.args.get("format") or "json").strip().lower()
-    doc = knowledge_base.get_doc(slug)
-    if not doc:
-        return jsonify({"error": "not found"}), 404
-    if fmt == "markdown" or fmt == "md":
-        return Response(doc["markdown"], mimetype="text/markdown; charset=utf-8")
-    if fmt == "html":
-        return Response(doc["html"], mimetype="text/html; charset=utf-8")
-    return jsonify(doc)
-
-
-@app.get("/kb")
-def kb_page():
-    return send_from_directory(APP_DIR / "static", "kb.html")
-
-
-@app.get("/kb/<slug>")
-def kb_article_page(slug: str):
-    # Stub: same SPA shell; client can load doc via API
-    return send_from_directory(APP_DIR / "static", "kb.html")
-
 
 
 if __name__ == "__main__":

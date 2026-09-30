@@ -6,220 +6,182 @@
   <title>Crypto Knowledge Base — Public APIs Hub</title>
   <style>
     :root {
-      --bg: #0a0a0b; --bg2: #111113; --bg3: #18181b; --border: #27272a;
-      --text: #f4f4f5; --muted: #a1a1aa; --accent: #a78bfa; --accent2: #67e8f9;
-      --ok: #34d399; --bad: #f87171; --radius: 12px;
-      --font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --bg:#0a0a0b; --bg2:#111113; --bg3:#18181b; --border:#27272a;
+      --text:#f4f4f5; --muted:#a1a1aa; --accent:#a78bfa; --accent2:#67e8f9;
+      --ok:#34d399; --bad:#f87171; --radius:12px;
+      --font:"Inter",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: var(--font); color: var(--text); min-height: 100vh;
-      background: radial-gradient(1200px 600px at 10% -10%, #1a1030 0%, transparent 55%),
-                  radial-gradient(900px 500px at 90% 0%, #0b1e2a 0%, transparent 50%), var(--bg);
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:var(--font);color:var(--text);min-height:100vh;
+      background:radial-gradient(1200px 600px at 10% -10%,#1a1030 0%,transparent 55%),
+                 radial-gradient(900px 500px at 90% 0%,#0b1e2a 0%,transparent 50%),var(--bg);
     }
-    header { padding: 28px 24px 8px; max-width: 860px; margin: 0 auto; }
-    header h1 {
-      margin: 0 0 6px; font-size: 1.65rem; font-weight: 650; letter-spacing: -0.02em;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text; background-clip: text; color: transparent;
+    header{padding:28px 24px 8px;max-width:860px;margin:0 auto}
+    header h1{
+      margin:0 0 6px;font-size:1.65rem;font-weight:650;letter-spacing:-0.02em;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
     }
-    header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-    nav { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-    nav a {
-      text-decoration: none; color: var(--muted); border: 1px solid var(--border);
-      background: var(--bg3); border-radius: 999px; padding: 6px 12px; font-size: 0.85rem;
+    header p{margin:0;color:var(--muted);font-size:.95rem}
+    nav{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    nav a{
+      text-decoration:none;color:var(--muted);border:1px solid var(--border);
+      background:var(--bg3);border-radius:999px;padding:6px 12px;font-size:.85rem;
     }
-    nav a:hover, nav a.active { color: var(--accent2); border-color: var(--accent); }
-    .wrap { max-width: 860px; margin: 0 auto; padding: 16px 24px 48px; }
-    .search-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    input {
-      flex: 1; min-width: 200px; background: var(--bg3); border: 1px solid var(--border);
-      color: var(--text); border-radius: 8px; padding: 12px 14px; font: inherit; outline: none;
+    nav a:hover,nav a.active{color:var(--accent2);border-color:var(--accent)}
+    .wrap{max-width:860px;margin:0 auto;padding:16px 24px 48px}
+    .panel{
+      background:color-mix(in srgb,var(--bg2) 88%,transparent);
+      border:1px solid var(--border);border-radius:var(--radius);padding:16px;
+      backdrop-filter:blur(8px);
     }
-    input:focus { border-color: var(--accent); }
-    button {
-      background: var(--bg3); border: 1px solid var(--border); color: var(--text);
-      border-radius: 8px; padding: 12px 16px; font: inherit; cursor: pointer;
+    .ask-row{display:flex;gap:10px;flex-wrap:wrap}
+    input{
+      flex:1;min-width:200px;background:var(--bg3);border:1px solid var(--border);
+      color:var(--text);border-radius:8px;padding:12px 14px;font:inherit;outline:none;
     }
-    button:hover { border-color: var(--accent); color: var(--accent); }
-    button.primary {
-      background: color-mix(in srgb, var(--accent) 25%, var(--bg3));
-      border-color: var(--accent); color: var(--text);
+    input:focus{border-color:var(--accent);box-shadow:0 0 0 2px #a78bfa33}
+    button{
+      cursor:pointer;border:1px solid var(--border);background:linear-gradient(135deg,#4c1d95,#0e7490);
+      color:#fff;border-radius:8px;padding:12px 16px;font:inherit;font-weight:600;
     }
-    .hint { margin-top: 10px; color: var(--muted); font-size: 0.8rem; }
-    .hint button.link {
-      background: none; border: none; color: var(--accent2); padding: 0 4px; cursor: pointer; font: inherit;
+    button:disabled{opacity:.55;cursor:wait}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .chip{
+      border:1px solid var(--border);background:var(--bg3);color:var(--muted);
+      border-radius:999px;padding:6px 10px;font-size:.78rem;cursor:pointer;
     }
-    .answer-card {
-      margin-top: 18px; background: color-mix(in srgb, var(--bg2) 88%, transparent);
-      border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 18px 14px;
+    .chip:hover{color:var(--accent2);border-color:var(--accent)}
+    .status{margin-top:10px;font-size:.78rem;color:var(--muted);font-family:var(--mono)}
+    .status.err{color:var(--bad)} .status.ok{color:var(--ok)}
+    .answer{
+      margin-top:16px;background:#09090b;border:1px solid var(--border);
+      border-radius:var(--radius);padding:18px 18px 14px;
     }
-    .answer-card .label {
-      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
-      color: var(--accent2); margin-bottom: 8px; font-weight: 600;
+    .answer h2{margin:0 0 10px;font-size:1rem;color:var(--accent2);font-weight:600}
+    .answer .body{font-size:1.05rem;line-height:1.55;white-space:pre-wrap}
+    .citations{margin-top:16px}
+    .citations summary{cursor:pointer;color:var(--muted);font-size:.85rem}
+    .cite{
+      margin-top:8px;padding:10px 12px;border:1px solid var(--border);
+      border-radius:8px;background:var(--bg2);
     }
-    .answer-card .answer { font-size: 1.05rem; line-height: 1.55; white-space: pre-wrap; }
-    .meta { margin-top: 10px; font-size: 0.75rem; color: var(--muted); font-family: var(--mono); }
-    details.sources { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
-    details.sources summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; user-select: none; }
-    details.sources summary:hover { color: var(--accent2); }
-    .source {
-      margin-top: 10px; padding: 10px; border: 1px solid var(--border);
-      border-radius: 8px; background: var(--bg3);
+    .cite strong{display:block;margin-bottom:4px}
+    .cite .snip{color:var(--muted);font-size:.85rem;line-height:1.4}
+    .related{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+    .related button{
+      background:var(--bg3);color:var(--text);font-weight:500;padding:7px 10px;font-size:.8rem;
     }
-    .source a { color: var(--accent); text-decoration: none; font-weight: 600; }
-    .source a:hover { color: var(--accent2); }
-    .source .snip { color: var(--muted); font-size: 0.82rem; margin-top: 4px; line-height: 1.4; }
-    .related { margin-top: 16px; }
-    .related h3 { margin: 0 0 8px; font-size: 0.9rem; color: var(--muted); font-weight: 600; }
-    .related a {
-      display: inline-block; margin: 0 8px 8px 0; color: var(--muted);
-      border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px;
-      font-size: 0.8rem; text-decoration: none;
-    }
-    .related a:hover { color: var(--accent2); border-color: var(--accent); }
-    .doc-view {
-      margin-top: 18px; background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px; display: none;
-    }
-    .doc-view h1 { font-size: 1.35rem; margin-top: 0; }
-    .doc-view .body { line-height: 1.55; color: var(--text); }
-    .doc-view .body h1, .doc-view .body h2, .doc-view .body h3 { color: var(--accent2); }
-    .doc-view .body code { font-family: var(--mono); font-size: 0.85em; }
-    .status-err { color: var(--bad); }
-    footer { max-width: 860px; margin: 0 auto; padding: 0 24px 32px; color: var(--muted); font-size: 0.8rem; }
+    footer{max-width:860px;margin:0 auto;padding:0 24px 32px;color:var(--muted);font-size:.8rem}
   </style>
 </head>
 <body>
   <header>
     <h1>Crypto Knowledge Base</h1>
-    <p>Offline corpus + extractive answers — no live market APIs. Ask a question; get a direct answer with citations.</p>
+    <p>Offline answers from a curated crypto &amp; blockchain corpus — no live free APIs.</p>
     <nav>
       <a href="/">Catalog</a>
       <a href="/tools">Live tools</a>
-      <a class="active" href="/kb">Knowledge</a>
-      <a href="/api/kb/status" target="_blank" rel="noopener">KB status</a>
+      <a class="active" href="/kb">Knowledge base</a>
     </nav>
   </header>
   <div class="wrap">
-    <form id="ask-form" class="search-row">
-      <input id="q" name="q" placeholder="e.g. What is Ethereum staking?" autocomplete="off" />
-      <button class="primary" type="submit">Ask</button>
-    </form>
-    <div class="hint">
-      Try:
-      <button type="button" class="link" data-q="What is Ethereum staking?">ethereum staking</button>
-      <button type="button" class="link" data-q="What is a liquidity pool?">liquidity pools</button>
-      <button type="button" class="link" data-q="Common crypto scams">scams</button>
-      <button type="button" class="link" data-q="What are Layer 2 rollups?">layer 2</button>
-    </div>
-
-    <div id="result" class="answer-card" hidden>
-      <div class="label">Answer</div>
-      <div class="answer" id="answer"></div>
-      <div class="meta" id="meta"></div>
-      <details class="sources" id="sources-wrap">
-        <summary id="sources-summary">Sources</summary>
-        <div id="sources"></div>
-      </details>
-      <div class="related" id="related-wrap" hidden>
-        <h3>Related</h3>
-        <div id="related"></div>
+    <div class="panel">
+      <form id="form" class="ask-row">
+        <input id="q" placeholder="Ask anything about crypto or blockchain…" autocomplete="off" />
+        <button id="go" type="submit">Ask</button>
+      </form>
+      <div class="chips" id="chips"></div>
+      <div class="status" id="status">Ready · offline corpus</div>
+      <div class="answer" id="answer" hidden>
+        <h2>Answer</h2>
+        <div class="body" id="answer-body"></div>
+        <div class="related" id="related"></div>
+        <details class="citations" id="citations-wrap" hidden>
+          <summary>Sources used</summary>
+          <div id="citations"></div>
+        </details>
       </div>
     </div>
-
-    <div id="doc-view" class="doc-view">
-      <button type="button" id="doc-back">← Back to answer</button>
-      <h1 id="doc-title"></h1>
-      <div class="body" id="doc-body"></div>
-    </div>
   </div>
-  <footer>Self-hosted offline KB · FTS5 · extractive synthesis (no external LLM)</footer>
+  <footer>Answers are extractive from the local knowledge base on this service. Not financial advice.</footer>
   <script>
     const $ = (id) => document.getElementById(id);
-    const params = new URLSearchParams(location.search);
-    const pathSlug = location.pathname.replace(/^\/kb\/?/, "") || "";
+    const suggestions = [
+      "What is Bitcoin?",
+      "How does Ethereum staking work?",
+      "What are layer 2 rollups?",
+      "CEX vs DEX",
+      "What is impermanent loss?",
+      "Hot wallets vs cold wallets",
+    ];
+    const chips = $("chips");
+    suggestions.forEach((s) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = s;
+      b.addEventListener("click", () => { $("q").value = s; ask(s); });
+      chips.appendChild(b);
+    });
 
     async function ask(q) {
-      $("doc-view").style.display = "none";
-      $("result").hidden = false;
-      $("answer").textContent = "Thinking…";
-      $("sources").innerHTML = "";
-      $("related").innerHTML = "";
-      $("related-wrap").hidden = true;
-      $("meta").textContent = "";
-      const res = await fetch("/api/kb/ask?q=" + encodeURIComponent(q));
-      const data = await res.json();
-      $("answer").textContent = data.answer || "(no answer)";
-      $("meta").textContent = data.query ? ("query: " + data.query) : "";
-      const sources = data.sources || [];
-      $("sources-summary").textContent = sources.length
-        ? `Sources (${sources.length}) — click to expand`
-        : "Sources (none)";
-      $("sources-wrap").open = false;
-      $("sources").innerHTML = sources.map(s => `
-        <div class="source">
-          <a href="/kb/${encodeURIComponent(s.slug)}" data-slug="${s.slug}">${escapeHtml(s.title)}</a>
-          <div class="snip">${escapeHtml(s.snippet || "")}</div>
-        </div>`).join("");
-      const related = data.related || [];
-      if (related.length) {
-        $("related-wrap").hidden = false;
-        $("related").innerHTML = related.map(r =>
-          `<a href="/kb/${encodeURIComponent(r.slug)}" data-slug="${r.slug}">${escapeHtml(r.title)}</a>`
-        ).join("");
-      }
-      document.querySelectorAll("[data-slug]").forEach(a => {
-        a.addEventListener("click", (e) => {
-          e.preventDefault();
-          openDoc(a.getAttribute("data-slug"));
+      q = (q || "").trim();
+      if (!q) return;
+      $("go").disabled = true;
+      $("status").className = "status";
+      $("status").textContent = "Thinking from offline corpus…";
+      try {
+        const res = await fetch("/api/kb/ask?q=" + encodeURIComponent(q));
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        $("answer").hidden = false;
+        $("answer-body").textContent = data.answer || "(no answer)";
+        const cites = $("citations");
+        cites.innerHTML = "";
+        const sources = data.sources || [];
+        $("citations-wrap").hidden = sources.length === 0;
+        sources.forEach((s) => {
+          const el = document.createElement("div");
+          el.className = "cite";
+          el.innerHTML = `<strong>${escapeHtml(s.title || s.slug || "source")}</strong><div class="snip">${escapeHtml(s.snippet || s.text || "")}</div>`;
+          cites.appendChild(el);
         });
-      });
-      history.replaceState(null, "", "/kb?q=" + encodeURIComponent(q));
-    }
-
-    async function openDoc(slug) {
-      const res = await fetch("/api/kb/doc/" + encodeURIComponent(slug));
-      if (!res.ok) { alert("Document not found"); return; }
-      const doc = await res.json();
-      $("result").hidden = true;
-      $("doc-view").style.display = "block";
-      $("doc-title").textContent = doc.title;
-      $("doc-body").innerHTML = doc.html || "";
-      history.replaceState(null, "", "/kb/" + encodeURIComponent(slug));
+        const rel = $("related");
+        rel.innerHTML = "";
+        (data.related || []).slice(0, 6).forEach((r) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = r.title || r.slug;
+          b.addEventListener("click", () => {
+            const nq = r.title || r.slug;
+            $("q").value = nq;
+            ask(nq);
+          });
+          rel.appendChild(b);
+        });
+        $("status").className = "status ok";
+        $("status").textContent = `ok · ${sources.length} source(s) · offline`;
+      } catch (e) {
+        $("status").className = "status err";
+        $("status").textContent = String(e.message || e);
+      } finally {
+        $("go").disabled = false;
+      }
     }
 
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      })[c]);
+      return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
     }
 
-    $("ask-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const q = $("q").value.trim();
-      if (q) ask(q);
-    });
-    document.querySelectorAll("[data-q]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        $("q").value = btn.getAttribute("data-q");
-        ask($("q").value);
-      });
-    });
-    $("doc-back").addEventListener("click", () => {
-      $("doc-view").style.display = "none";
-      $("result").hidden = false;
-      const q = $("q").value.trim();
-      history.replaceState(null, "", q ? "/kb?q=" + encodeURIComponent(q) : "/kb");
+    $("form").addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      ask($("q").value);
     });
 
-    if (pathSlug && !pathSlug.includes("?")) {
-      openDoc(pathSlug);
-    } else if (params.get("q")) {
-      $("q").value = params.get("q");
-      ask(params.get("q"));
-    }
+    fetch("/api/kb/status").then(r => r.json()).then((j) => {
+      if (j && j.ok) $("status").textContent = `Ready · ${j.doc_count || "?"} docs · offline`;
+    }).catch(() => {});
   </script>
 </body>
 </html>
