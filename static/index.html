@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Public APIs Hub — Crypto & Blockchain</title>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --bg2: #111113;
+      --bg3: #18181b;
+      --border: #27272a;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --accent: #a78bfa;
+      --accent2: #67e8f9;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --radius: 12px;
+      --font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: radial-gradient(1200px 600px at 10% -10%, #1a1030 0%, transparent 55%),
+                  radial-gradient(900px 500px at 90% 0%, #0b1e2a 0%, transparent 50%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header { padding: 28px 24px 8px; max-width: 1200px; margin: 0 auto; }
+    header h1 {
+      margin: 0 0 6px; font-size: 1.65rem; font-weight: 650; letter-spacing: -0.02em;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px 24px 48px; }
+    .panel {
+      background: color-mix(in srgb, var(--bg2) 88%, transparent);
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; backdrop-filter: blur(8px);
+    }
+    .filters { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+    @media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
+    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    input, select {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+      border-radius: 8px; padding: 10px 12px; font: inherit; outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px #a78bfa33; }
+    .meta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 0.85rem; margin: 0 0 14px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 0.78rem;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+    .card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px;
+      transition: border-color .15s, transform .15s;
+    }
+    .card:hover { border-color: #3f3f46; transform: translateY(-1px); }
+    .card h3 { margin: 0; font-size: 1.05rem; letter-spacing: -0.01em; }
+    .card h3 a { color: var(--text); text-decoration: none; }
+    .card h3 a:hover { color: var(--accent2); }
+    .desc { color: var(--muted); font-size: 0.88rem; line-height: 1.45; flex: 1; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; background: #1f1f23;
+      border: 1px solid var(--border); color: var(--muted); font-family: var(--mono);
+    }
+    .tag.yes { color: var(--ok); border-color: #065f46; }
+    .tag.no { color: var(--bad); border-color: #7f1d1d; }
+    .tag.unknown { color: var(--warn); border-color: #78350f; }
+    .tag.cat { color: var(--accent); border-color: #4c1d95; }
+    .actions { display: flex; gap: 8px; margin-top: 4px; }
+    button, .btn {
+      cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text);
+      border-radius: 8px; padding: 7px 10px; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center;
+    }
+    button:hover, .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .proxy-box {
+      margin-top: 18px; font-family: var(--mono); font-size: 0.78rem; background: #09090b;
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--muted); overflow-x: auto;
+    }
+    .proxy-box code { color: var(--accent2); }
+    .empty { text-align: center; color: var(--muted); padding: 40px 10px; }
+    footer { max-width: 1200px; margin: 0 auto; padding: 0 24px 32px; color: var(--muted); font-size: 0.8rem; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Public APIs Hub</h1>
+    <p>Searchable Cryptocurrency &amp; Blockchain catalog from <a href="https://github.com/public-apis/public-apis" style="color:var(--accent2)">public-apis</a>, plus a safe CORS proxy.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel">
+      <div class="filters">
+        <div><label for="q">Search</label><input id="q" placeholder="name, description, host…" autocomplete="off" /></div>
+        <div><label for="category">Category</label><select id="category"><option value="">All (v1)</option><option value="Cryptocurrency" selected>Cryptocurrency</option><option value="Blockchain">Blockchain</option></select></div>
+        <div><label for="auth">Auth</label><select id="auth"><option value="">Any</option><option value="No">No</option><option value="apiKey">apiKey</option><option value="OAuth">OAuth</option></select></div>
+        <div><label for="https">HTTPS</label><select id="https"><option value="">Any</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+        <div><label for="cors">CORS</label><select id="cors"><option value="">Any</option><option value="Yes">Yes</option><option value="No">No</option><option value="Unknown">Unknown</option></select></div>
+      </div>
+      <div class="meta"><span class="pill"><span class="dot"></span> <span id="count">…</span> APIs</span><span class="pill" id="health">health…</span></div>
+      <div id="grid" class="grid"></div>
+      <div class="proxy-box">Proxy: <code>GET /api/proxy?url=&lt;encoded_https_url&gt;</code> — allowlisted to catalog hosts only. Example: <code id="ex"></code></div>
+    </div>
+  </div>
+  <footer>Data sourced from public-apis README (Crypto + Blockchain). Deployed for Projject Api room bots.</footer>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const grid = $("grid");
+    function tagClass(v) { const x = (v || "").toLowerCase(); if (x === "yes") return "yes"; if (x === "no") return "no"; return "unknown"; }
+    function card(item) {
+      const el = document.createElement("article"); el.className = "card";
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(item.link)}`;
+      el.innerHTML = `<h3><a href="${item.link}" target="_blank" rel="noopener">${escapeHtml(item.api)}</a></h3><div class="desc">${escapeHtml(item.description)}</div><div class="tags"><span class="tag cat">${escapeHtml(item.category)}</span><span class="tag">Auth: ${escapeHtml(item.auth)}</span><span class="tag ${tagClass(item.https)}">HTTPS: ${escapeHtml(item.https)}</span><span class="tag ${tagClass(item.cors)}">CORS: ${escapeHtml(item.cors)}</span></div><div class="actions"><a class="btn" href="${item.link}" target="_blank" rel="noopener">Docs</a><button type="button">Copy proxy URL</button></div>`;
+      el.querySelector("button").addEventListener("click", async () => { const u = location.origin + proxyUrl; try { await navigator.clipboard.writeText(u); } catch {} alert("Copied:\n" + u); });
+      return el;
+    }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+    async function load() {
+      const params = new URLSearchParams();
+      const q = $("q").value.trim(); const category = $("category").value; const auth = $("auth").value; const https = $("https").value; const cors = $("cors").value;
+      if (q) params.set("q", q); if (category) params.set("category", category); if (auth) params.set("auth", auth); if (https) params.set("https", https); if (cors) params.set("cors", cors);
+      const res = await fetch("/api/catalog?" + params.toString()); const data = await res.json();
+      $("count").textContent = data.count; grid.innerHTML = "";
+      if (!data.items.length) { grid.innerHTML = `<div class="empty">No APIs match these filters.</div>`; return; }
+      data.items.forEach((item) => grid.appendChild(card(item)));
+    }
+    async function checkHealth() {
+      try { const r = await fetch("/api/health"); const j = await r.json();
+        $("health").textContent = `ok · ${j.catalog_count} total · ${j.allowed_hosts} hosts`;
+        $("ex").textContent = `/api/proxy?url=${encodeURIComponent("https://api.coinpaprika.com/v1/tickers")}`;
+      } catch { $("health").textContent = "health unreachable"; }
+    }
+    ["q","category","auth","https","cors"].forEach((id) => { $(id).addEventListener("input", () => load()); $(id).addEventListener("change", () => load()); });
+    checkHealth(); load();
+  </script>
+</body>
+</html>
