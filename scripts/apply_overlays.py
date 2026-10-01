@@ -7,7 +7,20 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 
+def _materialize_splits() -> None:
+    parts = sorted(SCRIPTS.glob("overlay_*.tgz.b64.part*"))
+    groups: dict[str, list[Path]] = {}
+    for p in parts:
+        name = p.name.split(".part")[0]
+        groups.setdefault(name, []).append(p)
+    for name, plist in groups.items():
+        plist = sorted(plist)
+        out = SCRIPTS / name
+        out.write_text("".join(x.read_text().strip() for x in plist) + "\n")
+        print(f"joined {name} from {len(plist)} parts")
+
 def main() -> int:
+    _materialize_splits()
     blobs = sorted(SCRIPTS.glob("overlay_*.tgz.b64"))
     if not blobs:
         print("no overlays found")
