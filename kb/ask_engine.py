@@ -667,9 +667,9 @@ def md_to_html(md: str) -> str:
 
     def inline(s: str) -> str:
         s = (
-            s.replace("&", "&")
-            .replace("<", "<")
-            .replace(">", ">")
+            s.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
         )
         s = _MD_BOLD.sub(r"<strong>\1</strong>", s)
         s = _MD_CODE.sub(r"<code>\1</code>", s)
