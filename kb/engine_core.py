@@ -8,6 +8,28 @@ DB_PATH = ROOT / "data" / "kb.sqlite"
 CORPUS = ROOT / "kb" / "corpus"
 _STOP = set("a an the is are was were be been being to of in on for and or as at by with from that this it its into about what how why when where who which can does do did me my your you i we they their our".split())
 
+# Non-crypto categories used by /banking and scope=banking (verified vs DISTINCT category + sample slugs).
+BANKING_CATEGORIES = frozenset({
+    "banking",
+    "corporate-banking",
+    "investment-banking",
+    "private-banking",
+    "real-estate",
+    "compliance",
+    "fintech",
+})
+
+
+def resolve_scope_categories(scope: str | None) -> frozenset[str] | None:
+    """Return allowed categories for a scope, or None for full corpus."""
+    if not scope:
+        return None
+    s = str(scope).strip().lower()
+    if s in ("banking", "finance", "fi", "kyc"):
+        return BANKING_CATEGORIES
+    return None
+
+
 def ensure_index(force: bool = False) -> bool:
     """Build FTS index if missing, empty, or corpus file count drifted."""
     corpus_n = len(list(CORPUS.glob("*.md"))) if CORPUS.is_dir() else 0
@@ -78,19 +100,45 @@ def _fts_query(q: str, terms: list[str] | None = None) -> str:
     return " AND ".join(parts)
 
 
-def search(q: str, limit: int = 20) -> list[dict]:
+def search(q: str, limit: int = 20, scope: str | None = None) -> list[dict]:
     limit = max(1, min(int(limit or 20), 50)); q = (q or "").strip()
     if not q: return []
+    cats = resolve_scope_categories(scope)
+    # Over-fetch when scoped so category filter still yields enough hits
+    fetch_n = limit * 4 if cats else limit
     conn = _connect()
     try:
-        rows = conn.execute("SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' … ',24) AS snip,bm25(docs_fts) AS score FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?", (_fts_query(q), limit)).fetchall()
+        rows = conn.execute(
+            "SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' … ',24) AS snip,bm25(docs_fts) AS score "
+            "FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?",
+            (_fts_query(q), fetch_n),
+        ).fetchall()
     except sqlite3.OperationalError:
         toks = re.findall(r"[A-Za-z0-9_+\-]+", q.lower())
         fts2_parts = ['"' + t.replace('"', '') + '"' for t in toks[:8]]
         fts2 = " OR ".join(fts2_parts) or '"crypto"'
-        rows = conn.execute("SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' … ',24) AS snip,bm25(docs_fts) AS score FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?", (fts2, limit)).fetchall()
+        rows = conn.execute(
+            "SELECT d.slug,d.title,d.category,d.tags,d.path,snippet(docs_fts,3,'','',' … ',24) AS snip,bm25(docs_fts) AS score "
+            "FROM docs_fts JOIN docs d ON d.id=docs_fts.rowid WHERE docs_fts MATCH ? ORDER BY bm25(docs_fts) LIMIT ?",
+            (fts2, fetch_n),
+        ).fetchall()
     conn.close()
-    return [{"title": r["title"], "slug": r["slug"], "path": r["path"], "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()], "category": r["category"], "snippet": (r["snip"] or "").replace("\n"," ").strip(), "score": round(-float(r["score"]), 4)} for r in rows]
+    out = []
+    for r in rows:
+        if cats and (r["category"] or "") not in cats:
+            continue
+        out.append({
+            "title": r["title"],
+            "slug": r["slug"],
+            "path": r["path"],
+            "tags": [t.strip() for t in (r["tags"] or "").split(",") if t.strip()],
+            "category": r["category"],
+            "snippet": (r["snip"] or "").replace("\n", " ").strip(),
+            "score": round(-float(r["score"]), 4),
+        })
+        if len(out) >= limit:
+            break
+    return out
 
 def get_doc(slug: str) -> dict | None:
     slug = (slug or "").strip()
