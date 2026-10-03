@@ -234,6 +234,11 @@ def kb_article_page(slug: str):
 
 @app.get("/")
 def index():
+    return send_from_directory(APP_DIR / "static", "landing.html")
+
+
+@app.get("/catalog")
+def catalog_page():
     return send_from_directory(APP_DIR / "static", "index.html")
 
 @app.get("/tools")
