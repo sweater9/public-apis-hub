@@ -3,130 +3,177 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Public APIs Hub — Crypto, blockchain, and fintech APIs</title>
-  <meta name="description" content="Searchable crypto and blockchain API catalog, a CORS proxy, live market tools, and an offline knowledge base for fintech and institution terminology." />
+  <title>Public APIs Hub</title>
+  <meta name="description" content="Search 102 crypto and blockchain APIs, call them through a same-origin proxy, and look up fintech and institution terminology in an offline knowledge base." />
   <style>
     :root {
-      --bg: #0a0a0b; --bg2: #111113; --bg3: #18181b; --border: #27272a;
-      --text: #f4f4f5; --muted: #a1a1aa; --accent: #a78bfa; --accent2: #67e8f9;
-      --radius: 16px;
+      --bg: #07080b;
+      --panel: #101218;
+      --line: rgba(255,255,255,.08);
+      --text: #f5f6f8;
+      --muted: #9aa3b2;
+      --accent: #8b7cf7;
+      --accent2: #5eead4;
       --font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      margin: 0; font-family: var(--font); color: var(--text); min-height: 100vh;
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
       background:
-        radial-gradient(1000px 520px at 12% -8%, #1a1030 0%, transparent 55%),
-        radial-gradient(800px 420px at 92% 0%, #0b1e2a 0%, transparent 50%),
+        radial-gradient(900px 420px at 80% -10%, rgba(139,124,247,.18), transparent 60%),
+        radial-gradient(700px 380px at 0% 0%, rgba(94,234,212,.08), transparent 55%),
         var(--bg);
     }
-    a { color: inherit; }
-    .nav {
-      max-width: 1080px; margin: 0 auto; padding: 20px 24px;
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+    header.top {
+      position: sticky; top: 0; z-index: 5;
+      backdrop-filter: blur(16px);
+      background: rgba(7,8,11,.72);
+      border-bottom: 1px solid var(--line);
     }
-    .brand { font-weight: 650; letter-spacing: -0.02em; text-decoration: none; }
-    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
-    .nav-links a {
-      text-decoration: none; color: var(--muted); font-size: 0.88rem;
-      padding: 8px 12px; border-radius: 999px;
+    .bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; min-height: 64px;
     }
-    .nav-links a:hover { color: var(--text); }
-    .nav-links a.cta {
-      color: var(--text); border: 1px solid var(--accent); background: #a78bfa22;
+    .brand { font-weight: 650; letter-spacing: -.03em; }
+    .brand span { color: var(--accent2); }
+    nav { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    nav a { color: var(--muted); font-size: .9rem; padding: 8px 10px; border-radius: 8px; }
+    nav a:hover { color: var(--text); }
+    nav a.go {
+      color: #0b0c10; background: var(--text); font-weight: 650; padding: 8px 12px;
     }
-    .hero { max-width: 1080px; margin: 0 auto; padding: 48px 24px 24px; }
-    .eyebrow {
-      display: inline-block; color: var(--accent2); font-size: 0.78rem;
-      letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+    .hero { padding: 72px 0 28px; }
+    .kicker {
+      color: var(--accent2); font-size: .78rem; letter-spacing: .12em;
+      text-transform: uppercase; font-weight: 650;
     }
     h1 {
-      margin: 12px 0 14px; font-size: clamp(2.1rem, 5vw, 3.4rem);
-      letter-spacing: -0.035em; line-height: 1.05; max-width: 16ch; font-weight: 680;
+      margin: 14px 0 16px; max-width: 16ch;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      line-height: .98; letter-spacing: -.045em; font-weight: 650;
     }
-    .lede { margin: 0; max-width: 58ch; color: var(--muted); font-size: 1.08rem; line-height: 1.55; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+    .lede { margin: 0; max-width: 58ch; color: var(--muted); font-size: 1.12rem; line-height: 1.6; }
+    .cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
     .btn {
-      text-decoration: none; border-radius: 10px; padding: 12px 16px; font-weight: 600;
-      border: 1px solid var(--border); background: var(--bg3);
+      display: inline-flex; align-items: center; border-radius: 10px;
+      padding: 12px 16px; font-weight: 650; border: 1px solid var(--line);
     }
-    .btn.primary { border-color: var(--accent); background: #a78bfa33; }
-    .btn:hover { border-color: var(--accent2); }
-    .grid {
-      max-width: 1080px; margin: 0 auto; padding: 28px 24px 8px;
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px;
+    .btn.primary { background: var(--text); color: #0b0c10; border-color: transparent; }
+    .btn.ghost:hover { border-color: rgba(255,255,255,.28); }
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      margin: 48px 0 8px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
     }
+    .stat { background: var(--panel); padding: 18px 20px; }
+    .stat b { display: block; font-size: 1.35rem; letter-spacing: -.03em; }
+    .stat span { color: var(--muted); font-size: .85rem; }
+    section { padding: 28px 0 8px; }
+    h2 { margin: 0 0 8px; font-size: 1.55rem; letter-spacing: -.03em; }
+    .sub { margin: 0 0 18px; color: var(--muted); max-width: 62ch; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .card {
-      background: color-mix(in srgb, var(--bg2) 90%, transparent);
-      border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;
+      background: rgba(16,18,24,.9);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px;
     }
-    .card h2 { margin: 0 0 8px; font-size: 1.05rem; letter-spacing: -0.02em; }
-    .card p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
-    .steps { max-width: 1080px; margin: 0 auto; padding: 28px 24px 64px; }
-    .steps h2 { margin: 0 0 14px; font-size: 1.25rem; letter-spacing: -0.02em; }
-    ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-    li {
-      display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start;
-      color: var(--muted); line-height: 1.5;
+    .card h3 { margin: 0 0 8px; font-size: 1.05rem; letter-spacing: -.02em; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .card a.more { display: inline-block; margin-top: 14px; color: var(--accent2); font-size: .9rem; font-weight: 650; }
+    ol.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    ol.steps li {
+      display: grid; grid-template-columns: 36px 1fr; gap: 12px; align-items: start;
+      padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
     }
-    .n {
-      width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center;
-      border: 1px solid var(--border); color: var(--accent2); font-size: 0.8rem; font-weight: 650;
+    ol.steps b {
+      width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+      background: rgba(139,124,247,.16); color: #ddd6fe; font-size: .85rem;
     }
+    ol.steps p { margin: 2px 0 0; color: var(--muted); }
     footer {
-      max-width: 1080px; margin: 0 auto; padding: 0 24px 36px;
-      color: var(--muted); font-size: 0.82rem;
+      padding: 36px 0 48px; color: var(--muted); font-size: .85rem; line-height: 1.5;
+    }
+    @media (max-width: 800px) {
+      .stats, .grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 40px; }
     }
   </style>
 </head>
 <body>
-  <nav class="nav">
-    <a class="brand" href="/">Public APIs Hub</a>
-    <div class="nav-links">
-      <a href="/catalog">Catalog</a>
-      <a href="/tools">Live tools</a>
-      <a href="/kb">Knowledge base</a>
-      <a href="/banking">Banking</a>
-      <a class="cta" href="/catalog">Open the hub</a>
-    </div>
-  </nav>
-  <header class="hero">
-    <span class="eyebrow">Crypto, blockchain, and fintech</span>
-    <h1>One hub for public APIs and the words banks actually use.</h1>
-    <p class="lede">Search a curated catalog, call APIs through a same-origin proxy, try live market tools, and ask an offline knowledge base about products and terminology used by fintechs and financial institutions.</p>
-    <div class="actions">
-      <a class="btn primary" href="/catalog">Browse the catalog</a>
-      <a class="btn" href="/kb">Ask the knowledge base</a>
-      <a class="btn" href="/tools">Try live tools</a>
-      <a class="btn" href="/banking">Banking KB</a>
+  <header class="top">
+    <div class="wrap bar">
+      <a class="brand" href="/">Public APIs <span>Hub</span></a>
+      <nav>
+        <a href="/catalog">Catalog</a>
+        <a href="/tools">Live tools</a>
+        <a href="/kb">Knowledge</a>
+        <a href="/banking">Banking</a>
+        <a class="go" href="/catalog">Open catalog</a>
+      </nav>
     </div>
   </header>
-  <section class="grid">
-    <article class="card">
-      <h2>API catalog</h2>
-      <p>Filter cryptocurrency and blockchain APIs by category, auth, HTTPS, and CORS. Copy a proxy URL when the upstream API blocks browser calls.</p>
-    </article>
-    <article class="card">
-      <h2>Live tools</h2>
-      <p>Spot-check prices and chain data from public endpoints already allowlisted, without leaving the hub.</p>
-    </article>
-    <article class="card">
-      <h2>Knowledge base</h2>
-      <p>Ask plain questions about KYC, AML, payment rails, cards, open banking, custody, settlement, and related institution language. Answers cite the offline corpus.</p>
-    </article>
-    <article class="card">
-      <h2>Built to stay simple</h2>
-      <p>No account required. The knowledge base runs offline on the server. The catalog stays searchable even when a third-party API is down.</p>
-    </article>
-  </section>
-  <section class="steps">
-    <h2>How it works</h2>
-    <ol>
-      <li><span class="n">1</span><span>Find an API in the catalog and open its docs, or copy a proxy URL for browser-side calls.</span></li>
-      <li><span class="n">2</span><span>Use live tools when you want a quick read of public market or chain data.</span></li>
-      <li><span class="n">3</span><span>Ask the knowledge base when you need the product or compliance term, not a price.</span></li>
-    </ol>
-  </section>
-  <footer>Public APIs Hub · catalog from the public-apis list · knowledge base is educational, not legal advice.</footer>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="kicker">Crypto · Blockchain · Fintech</div>
+      <h1>A working hub for public APIs and institution language.</h1>
+      <p class="lede">Search a curated catalog, call allowlisted endpoints through a same-origin proxy, and look up the products and terms fintechs and financial institutions use. No account. Answers come from an offline corpus, not a live model.</p>
+      <div class="cta">
+        <a class="btn primary" href="/catalog">Browse the catalog</a>
+        <a class="btn ghost" href="/kb">Ask the knowledge base</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>102</b><span>catalogued APIs</span></div>
+        <div class="stat"><b>2</b><span>categories: crypto and blockchain</span></div>
+        <div class="stat"><b>83</b><span>offline knowledge articles</span></div>
+        <div class="stat"><b>0</b><span>accounts required</span></div>
+      </div>
+    </section>
+
+    <section id="product">
+      <h2>What you can do here</h2>
+      <p class="sub">Four surfaces, one service. The catalog is for finding APIs. The knowledge base is for understanding the language around them.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>API catalog</h3>
+          <p>Filter cryptocurrency and blockchain APIs and open the upstream docs. When a browser cannot call the API directly, copy a proxy URL limited to allowlisted hosts.</p>
+          <a class="more" href="/catalog">Open the catalog</a>
+        </article>
+        <article class="card">
+          <h3>Live tools</h3>
+          <p>Read public prices, chain fees, and market snapshots through the hub proxy. Useful for a quick check, not a trading terminal.</p>
+          <a class="more" href="/tools">Open live tools</a>
+        </article>
+        <article class="card">
+          <h3>Knowledge base</h3>
+          <p>Ask plain questions about crypto, payments, KYC, rails, cards, custody, and settlement. Each answer cites the offline articles it used.</p>
+          <a class="more" href="/kb">Ask a question</a>
+        </article>
+        <article class="card">
+          <h3>Banking and compliance</h3>
+          <p>A separate page for banking products and multi-jurisdiction KYC overviews. Educational context only. It is not legal advice.</p>
+          <a class="more" href="/banking">Open the banking page</a>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>How to use it</h2>
+      <p class="sub">Start with the catalog if you need an endpoint. Start with the knowledge base if you need the term.</p>
+      <ol class="steps">
+        <li><b>1</b><div><strong>Find the API</strong><p>Search the catalog, open the docs, or copy a proxy URL for browser-side calls.</p></div></li>
+        <li><b>2</b><div><strong>Check a live reading</strong><p>Use the tools page when you want a current public price, fee, or market figure.</p></div></li>
+        <li><b>3</b><div><strong>Look up the term</strong><p>Ask the knowledge base or the banking page when the question is about a product or a compliance concept.</p></div></li>
+      </ol>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">Public APIs Hub. Catalog sourced from the public-apis list. Knowledge-base answers are educational extracts, not financial or legal advice.</div>
+  </footer>
 </body>
 </html>
