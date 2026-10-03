@@ -1,1 +1,130 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Public APIs Hub — Crypto, blockchain, and fintech APIs</title>
+  <meta name="description" content="Searchable crypto and blockchain API catalog, a CORS proxy, live market tools, and an offline knowledge base for fintech and institution terminology." />
+  <style>
+    :root {
+      --bg: #0a0a0b; --bg2: #111113; --bg3: #18181b; --border: #27272a;
+      --text: #f4f4f5; --muted: #a1a1aa; --accent: #a78bfa; --accent2: #67e8f9;
+      --radius: 16px;
+      --font: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: var(--font); color: var(--text); min-height: 100vh;
+      background:
+        radial-gradient(1000px 520px at 12% -8%, #1a1030 0%, transparent 55%),
+        radial-gradient(800px 420px at 92% 0%, #0b1e2a 0%, transparent 50%),
+        var(--bg);
+    }
+    a { color: inherit; }
+    .nav {
+      max-width: 1080px; margin: 0 auto; padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand { font-weight: 650; letter-spacing: -0.02em; text-decoration: none; }
+    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-size: 0.88rem;
+      padding: 8px 12px; border-radius: 999px;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.cta {
+      color: var(--text); border: 1px solid var(--accent); background: #a78bfa22;
+    }
+    .hero { max-width: 1080px; margin: 0 auto; padding: 48px 24px 24px; }
+    .eyebrow {
+      display: inline-block; color: var(--accent2); font-size: 0.78rem;
+      letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+    }
+    h1 {
+      margin: 12px 0 14px; font-size: clamp(2.1rem, 5vw, 3.4rem);
+      letter-spacing: -0.035em; line-height: 1.05; max-width: 16ch; font-weight: 680;
+    }
+    .lede { margin: 0; max-width: 58ch; color: var(--muted); font-size: 1.08rem; line-height: 1.55; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+    .btn {
+      text-decoration: none; border-radius: 10px; padding: 12px 16px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--bg3);
+    }
+    .btn.primary { border-color: var(--accent); background: #a78bfa33; }
+    .btn:hover { border-color: var(--accent2); }
+    .grid {
+      max-width: 1080px; margin: 0 auto; padding: 28px 24px 8px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px;
+    }
+    .card {
+      background: color-mix(in srgb, var(--bg2) 90%, transparent);
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
+    .steps { max-width: 1080px; margin: 0 auto; padding: 28px 24px 64px; }
+    .steps h2 { margin: 0 0 14px; font-size: 1.25rem; letter-spacing: -0.02em; }
+    ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    li {
+      display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start;
+      color: var(--muted); line-height: 1.5;
+    }
+    .n {
+      width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center;
+      border: 1px solid var(--border); color: var(--accent2); font-size: 0.8rem; font-weight: 650;
+    }
+    footer {
+      max-width: 1080px; margin: 0 auto; padding: 0 24px 36px;
+      color: var(--muted); font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="/">Public APIs Hub</a>
+    <div class="nav-links">
+      <a href="/catalog">Catalog</a>
+      <a href="/tools">Live tools</a>
+      <a href="/kb">Knowledge base</a>
+      <a class="cta" href="/catalog">Open the hub</a>
+    </div>
+  </nav>
+  <header class="hero">
+    <span class="eyebrow">Crypto, blockchain, and fintech</span>
+    <h1>One hub for public APIs and the words banks actually use.</h1>
+    <p class="lede">Search a curated catalog, call APIs through a same-origin proxy, try live market tools, and ask an offline knowledge base about products and terminology used by fintechs and financial institutions.</p>
+    <div class="actions">
+      <a class="btn primary" href="/catalog">Browse the catalog</a>
+      <a class="btn" href="/kb">Ask the knowledge base</a>
+      <a class="btn" href="/tools">Try live tools</a>
+    </div>
+  </header>
+  <section class="grid">
+    <article class="card">
+      <h2>API catalog</h2>
+      <p>Filter cryptocurrency and blockchain APIs by category, auth, HTTPS, and CORS. Copy a proxy URL when the upstream API blocks browser calls.</p>
+    </article>
+    <article class="card">
+      <h2>Live tools</h2>
+      <p>Spot-check prices and chain data from public endpoints already allowlisted, without leaving the hub.</p>
+    </article>
+    <article class="card">
+      <h2>Knowledge base</h2>
+      <p>Ask plain questions about KYC, AML, payment rails, cards, open banking, custody, settlement, and related institution language. Answers cite the offline corpus.</p>
+    </article>
+    <article class="card">
+      <h2>Built to stay simple</h2>
+      <p>No account required. The knowledge base runs offline on the server. The catalog stays searchable even when a third-party API is down.</p>
+    </article>
+  </section>
+  <section class="steps">
+    <h2>How it works</h2>
+    <ol>
+      <li><span class="n">1</span><span>Find an API in the catalog and open its docs, or copy a proxy URL for browser-side calls.</span></li>
+      <li><span class="n">2</span><span>Use live tools when you want a quick read of public market or chain data.</span></li>
+      <li><span class="n">3</span><span>Ask the knowledge base when you need the product or compliance term, not a price.</span></li>
+    </ol>
+  </section>
+  <footer>Public APIs Hub · catalog from the public-apis list · knowledge base is educational, not legal advice.</footer>
+</body>
+</html>
