@@ -71,8 +71,11 @@
     <h1>Live Crypto Tools</h1>
     <p>No-auth endpoints called through this hub’s CORS proxy — data hits the APIs, not docs pages.</p>
     <nav>
-      <a href="/">Catalog</a>
+      <a href="/">Home</a>
+      <a href="/catalog">Catalog</a>
       <a class="active" href="/tools">Live tools</a>
+      <a href="/kb">Knowledge</a>
+      <a href="/banking">Banking</a>
       <a href="/api/health" target="_blank" rel="noopener">Health</a>
     </nav>
   </header>
@@ -272,7 +275,7 @@
         const data = await proxyGet("https://www.corpstacking.com/feed.json");
         const items = (data.items || []).slice(0, 12);
         const rows = items.map((it) =>
-          `<tr><td>${(it.date_published || "").slice(0, 10)}</td><td><a href="${it.url || "#"}" target="_blank" rel="noopener" style="color:var(--accent2)">${(it.title || "").replace(/</g, "<")}</a></td></tr>`
+          `<tr><td>${(it.date_published || "").slice(0, 10)}</td><td><a href="${it.url || "#"}" target="_blank" rel="noopener" style="color:var(--accent2)">${(it.title || "").replace(/</g, "&lt;")}</a></td></tr>`
         ).join("");
         $("cs-out").innerHTML = `<table><thead><tr><th>Date</th><th>Item</th></tr></thead><tbody>${rows || "<tr><td colspan=2>No items</td></tr>"}</tbody></table>`;
         setStatus("cs-status", `ok · ${items.length} items`, true);
