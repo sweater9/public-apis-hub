@@ -102,7 +102,8 @@
     <h1>Banking & Finance Knowledge Base</h1>
     <p>Educational overviews of banking, FI/NBFI, fintech, real estate & escrow, corporate/investment/private banking, and multi-jurisdiction KYC (ME/US/UK/EU/APAC). Not legal advice. Offline extractive answers with citations.</p>
     <nav>
-      <a href="/">Catalog</a>
+      <a href="/">Home</a>
+      <a href="/catalog">Catalog</a>
       <a href="/tools">Live tools</a>
       <a href="/kb">Knowledge</a>
       <a class="active" href="/banking">Banking</a>
@@ -202,8 +203,8 @@
     }
 
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({
-        "&":"&","<":"<",">":">",'"':""","'":"&#39;"
+      return String(s).replace(/[&<>"\']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
       })[c]);
     }
 
