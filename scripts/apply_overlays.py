@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Decode scripts/overlay_*.tgz.b64 into the app root (used at image build/boot)."""
 from __future__ import annotations
-import base64, io, tarfile
+import base64, binascii, io, tarfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,9 +26,17 @@ def main() -> int:
         print("no overlays found")
         return 0
     for blob in blobs:
-        raw = base64.b64decode(blob.read_text().encode("ascii"))
-        with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tar:
-            tar.extractall(ROOT)
+        text = blob.read_text().strip()
+        if not text or text == "PLACEHOLDER":
+            print(f"skip {blob.name}: empty placeholder")
+            continue
+        try:
+            raw = base64.b64decode(text.encode("ascii"), validate=True)
+            with tarfile.open(fileobj=io.BytesIO(raw), mode="r:gz") as tar:
+                tar.extractall(ROOT)
+        except (binascii.Error, tarfile.TarError, ValueError) as exc:
+            print(f"skip {blob.name}: {exc}")
+            continue
         print(f"applied {blob.name} ({len(raw)} bytes)")
     return 0
 
